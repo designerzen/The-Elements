@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	<!-- NMML reference: https://gist.github.com/1763850 -->
+	
+	<!-- metadata, make sure 'package' is at least 3 segments (ie. com.mycompany.myproject) -->
+	<meta title="The Elements" package="com.designerzen.elements" version="1.0.0" company="com.designerzen.elements" />
+	
+	<!-- output -->
+	<app main="Main" file="The-Elements" path="bin" />
+	
+	<!-- window width="800" height="480" unless="mobile" / -->
+	<window background="#000000" fps="60" fullscreen="true" />
+	<window width="1024" height="700" if="desktop" />
+	<window orientation="landscape" vsync="true" antialiasing="0" if="cpp" />
+	<window width="0" height="0" if="html5" />
+	<window hardware="true" allow-shaders="true" require-shaders="true" depth-buffer="true" stencil-buffer="true" />
+	
+	<!-- classpath, haxe libs -->
+	<source path="src" />
+	<!--
+	<set name="openfl-legacy" />
+	 use old openFL version 
+	<set name="lime-hybrid" />
+	
+	<haxeflag />
+		
+		Use haxeflag nodes to specify additional arguments when running the Haxe compiler.
+		
+		You can set your additional flag using the name attribute, or optionally you can
+		also include a value attribute if the flag requires a value.
+	
+	<haxeflag name="--no-traces" />
+	-->
+	
+	<!-- Main Cross Platform Library 
+	<haxelib name="" version="" />
+	-->
+	
+    <!-- 3D libraries -->
+	<haxelib name="format" if="html5" />
+	<haxelib name="away3d" />
+	<haxelib name="openfl" />
+	<!-- Tweens -->
+	<haxelib name="actuate" />
+	<!-- UI Library 
+	<haxelib name="haxeui" />
+	-->
+	
+	<!-- assets -->
+	<icon path="assets/openfl.svg" />
+	<assets path="assets/images" 	rename="img" />
+	<assets path="assets/maquettes" rename="3d" />
+	<assets path="assets/json" 		rename="json" />
+	
+	<!-- away3D mods -->
+	<haxedef name="source-map-content" if="html5" />
+    <haxedef name="dom" if="html5" />
+
+    <android minimum-sdk-version="10" />
+	
+	<!-- optimize output
+	<haxeflag name="-dce full" /> -->
+	
+</project>
