@@ -11,9 +11,15 @@ import away3d.entities.Mesh;
 import away3d.entities.SegmentSet;
 import away3d.events.MouseEvent3D;
 import away3d.primitives.LineSegment;
+import models.events.LayoutEvent;
+import models.Layouts;
 import models.layouts.ILayout;
 import models.layouts.MendelevLayout;
+import models.layouts.OnionLayout;
+import models.layouts.SingleRowLayout;
 import models.layouts.SpiralLayout;
+import motion.Actuate;
+import openfl.geom.Vector3D;
 
 import openfl.events.Event;
 import openfl.events.KeyboardEvent;
@@ -31,14 +37,26 @@ class ElementExplorer extends Away3dView
 {
 	var elementModels:Elements;
 	var elementMeshes:Array<ElementMesh>;
+	var layouts:Layouts;
+	var trailSegments:SegmentSet;
+	var currentFocus:ElementMesh;
 	
 	public function new( allElements:Elements ) 
 	{
 		elementModels = allElements;
 		elementMeshes = new Array();
+		layouts = new Layouts();
+		
 		super();
 	}
 	
+	
+	public function focusOn(mesh:ElementMesh) 
+	{
+		camera.lookAt(mesh.position);
+		currentFocus = mesh;
+	}
+	/*
 	//////////////////////////////////////////////////////////////
 	// Initialise the Materials that we will use on our world
 	//////////////////////////////////////////////////////////////
@@ -46,14 +64,14 @@ class ElementExplorer extends Away3dView
 	{
 		
 	}
-	
+	*/
 	//////////////////////////////////////////////////////////////
 	// Initialise Objects
 	//////////////////////////////////////////////////////////////
 	override private function initObjects():Void
 	{
-		//var layout:ILayout = new SpiralLayout();
-		var layout:ILayout = new MendelevLayout();
+		var layout:ILayout = layouts.current;
+		
 		// loop through elements...
 		for ( element in elementModels.all )	
 		{
@@ -72,18 +90,79 @@ class ElementExplorer extends Away3dView
 		}
 		
 		// draw lines between elements
-		var segmentSet:SegmentSet = new SegmentSet();
+			
+		// only if the layout demands it
+		trailSegments = new SegmentSet();
+		if ( layout.showTrails ) trailSegments = drawConnections( elementMeshes, trailSegments );
 		
-		for ( i in 1...elementMeshes.length )
+		// and put it on the screen
+		view.scene.addChild( trailSegments );
+	}
+	
+	private function changeLayout( increment:Int=1, animate:Bool=true ):String
+	{
+		// fetch the layout
+		var layout:ILayout = layouts.increment( increment );
+		var duration:Float = 0.3;
+		var delay:Float = 0;
+		var overlap:Float = 1 / 13;
+		var quantity:Int = elementMeshes.length;
+		var count:Int = 0;
+		
+		for ( elementMesh in elementMeshes )	
 		{
-			var previous:ElementMesh = elementMeshes[i-1];
-			var next:ElementMesh = elementMeshes[i];
+			// position according to rules set out in layout
+			if ( animate )
+			{
+				var destination:Vector3D = layout.getPosition( elementMesh.model.atomicNumber );
+				
+				if ( count < quantity-1 ) Actuate.tween( elementMesh, duration, {x:destination.x,y:destination.y,z:destination.z} ).delay( delay );
+				else  Actuate.tween( elementMesh, duration, {x:destination.x,y:destination.y,z:destination.z} ).delay( delay ).onComplete( onLayoutAnimated );
+				
+				delay += duration * overlap;
+			}
+			else {
+				layout.position( elementMesh );
+			}
+			
+			count++;
+		}
+		
+		// trails :
+		// firstly clear out any existing trails
+		trailSegments.removeAllSegments();
+		
+		// draw trails immediately
+		if ( layout.showTrails && !animate ) 
+		{
+			trailSegments = drawConnections( elementMeshes, trailSegments );
+		}
+		
+		dispatchEvent( new LayoutEvent( LayoutEvent.CHANGED, layout ) );
+		
+		return layout.type;
+	}
+	
+	private function onLayoutAnimated():Void
+	{
+		var layout:ILayout = layouts.current;
+		if ( layout.showTrails ) 
+		{
+			trailSegments = drawConnections( elementMeshes, trailSegments );
+		}
+	}
+	
+	private function drawConnections( meshes:Array<ElementMesh>, segmentSet:SegmentSet ):SegmentSet
+	{
+		for ( i in 1...meshes.length )
+		{
+			var previous:ElementMesh = meshes[i-1];
+			var next:ElementMesh = meshes[i];
 			var connectingLine:LineSegment = new LineSegment( previous.position, next.position, 0xefefef, 0xdedede, 1 );
 		
 			segmentSet.addSegment( connectingLine );
 		}
-		
-		view.scene.addChild( segmentSet );
+		return segmentSet;
 	}
 	
 	override private function initListeners()
@@ -111,11 +190,6 @@ class ElementExplorer extends Away3dView
 		
 		// Render 3D.
 		view.render();
-	}
-	
-	public function focusOn(mesh:ElementMesh) 
-	{
-		camera.lookAt(mesh.position);
 	}
 	
 	// Keyboard interactions -------------------------------------------
@@ -149,8 +223,11 @@ class ElementExplorer extends Away3dView
 				panIncrement = 0;
 			case Keyboard.Z, Keyboard.X:
 				distanceIncrement = 0;
+			case Keyboard.SPACE:
+				changeLayout();
 		}
 	}
+	
 	
 	// Mouse interactions ----------------------------------------------
 	
@@ -187,7 +264,7 @@ class ElementExplorer extends Away3dView
 	
 	private function onMouseWheel(e:MouseEvent):Void 
 	{
-		var direction:Int = e.delta < 0 ? -1 : 1;
+		var direction:Int = e.delta < 0 ? -1 : 1; 
 		//distanceIncrement = distanceSpeed * direction;
 		cameraController.distance += distanceSpeed * direction;
 	}

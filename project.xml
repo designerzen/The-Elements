@@ -17,10 +17,11 @@
 	
 	<!-- classpath, haxe libs -->
 	<source path="src" />
-	<!--
+	
+	<!-- use old openFL version  
 	<set name="openfl-legacy" />
-	 use old openFL version 
-	<set name="lime-hybrid" />
+	 <set name="lime-hybrid" />-->
+	<!--
 	
 	<haxeflag />
 		

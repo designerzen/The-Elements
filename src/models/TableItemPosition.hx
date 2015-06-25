@@ -2,7 +2,6 @@ package models;
 
 class TableItemPosition
 {
-
 	public var column:Int = -1;
 	public var row:Int = -1;
 	

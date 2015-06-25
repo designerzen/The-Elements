@@ -9,7 +9,8 @@ import openfl.filters.DropShadowFilter;
 
 class ElementInfoView extends Sprite
 {
-	var text:openfl.text.TextField;
+	var textElement:TextField;
+	var textLayout:TextField;
 
 	public function new() 
 	{
@@ -18,39 +19,68 @@ class ElementInfoView extends Sprite
 		initText();
 	}
 	
+	private function createField( fontSize:Int=18, colour:Int=0xffffff ):TextField
+	{
+		var t:TextField = new TextField();
+		t.defaultTextFormat = new TextFormat("Verdana", fontSize, colour);
+		t.width = 1000;
+		t.height = 200;
+		t.selectable = false;
+		t.mouseEnabled = false;
+		t.filters = [new DropShadowFilter(1, 45, 0x0, 1, 0, 0), new DropShadowFilter(1, 45+180, 0x0, 1, 0, 0)];
+	
+		return t;
+	}
+	
 	private function initText()
 	{
-		text = new TextField();
-		text.defaultTextFormat = new TextFormat("Verdana", 17, 0xFFFFFF);
-		text.width = 1000;
-		text.height = 200;
-		text.x = 25;
-		text.y = 50;
-		text.selectable = false;
-		text.mouseEnabled = false;
-		text.text = "Camera controls -----\n";
-		text.text = "  Click and drag on the stage to rotate camera.\n";
-		text.appendText("  Keyboard arrows and WASD also rotate camera and Z and X zoom camera.\n");
-		text.appendText("Picking ----- \n");
-		text.appendText("  Click on the head model to draw on its texture. \n");
-		text.appendText("  Red objects have triangle picking precision. \n" );
-		text.appendText("  Blue objects have bounds picking precision. \n" );
-		text.appendText("  Gray objects are disabled for picking but occlude picking on other objects. \n" );
-		text.appendText("  Black objects are completely ignored for picking. \n" );
-		text.filters = [new DropShadowFilter(1, 45, 0x0, 1, 0, 0), new DropShadowFilter(1, 45+180, 0x0, 1, 0, 0)];
-		addChild(text);
+		
+		textLayout = createField( 24 );
+		textLayout.x = 25;
+		textLayout.y = 50;
+		
+		addChild(textLayout);
+		
+		textElement = createField( 17 );
+		textElement.x = 25;
+		textElement.y = 450;
+		
+		textElement.text = "Camera controls -----\n";
+		textElement.text = "  Click and drag on the stage to rotate camera.\n";
+		textElement.appendText("  Keyboard arrows and WASD also rotate camera and Z and X zoom camera.\n");
+		textElement.appendText("Picking ----- \n");
+		textElement.appendText("  Click on the head model to draw on its texture. \n");
+		textElement.appendText("  Red objects have triangle picking precision. \n" );
+		textElement.appendText("  Blue objects have bounds picking precision. \n" );
+		textElement.appendText("  Gray objects are disabled for picking but occlude picking on other objects. \n" );
+		textElement.appendText("  Black objects are completely ignored for picking. \n" );
+		
+		addChild(textElement);
 	}
 
-	public function show(model:Element) :Void
+	public function setLayout(text:String) :Void
 	{
-		text.text = model.toString();
+		textLayout.text = text;
 		visible = true;
+	}
+	
+	public function setText(text:String) :Void
+	{
+		textElement.text = text;
+		textElement.visible = true;
+	}
+	
+	public function showElement(model:Element) :Void
+	{
+		textElement.text = model.toString();
+		textElement.visible = true;
 	}
 	
 	public function hide() 
 	{
-		text.text = '';
-		visible = false;
+		textElement.text = '';
+		textElement.visible = false;
 	}
+	
 	
 }

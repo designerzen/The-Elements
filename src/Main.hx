@@ -1,6 +1,7 @@
 package;
 
 import haxe.Json;
+import models.events.LayoutEvent;
 
 import openfl.Assets;
 import openfl.Lib;
@@ -51,6 +52,7 @@ class Main extends Sprite
 		explorer.addEventListener( ElementEvent.OVER, onElementMouseOver );
 		explorer.addEventListener( ElementEvent.OUT, onElementMouseOut );
 		explorer.addEventListener( ElementEvent.PRESSED, onElementMousePressed );
+		explorer.addEventListener( LayoutEvent.CHANGED, onLayoutChanged );
 		addChild( explorer );
 	}
 	
@@ -60,12 +62,17 @@ class Main extends Sprite
 		addChild( infoView );
 	}
 	
+	private function onLayoutChanged(e:LayoutEvent):Void 
+	{
+		infoView.setLayout( e.layout.type );
+	}
+	
 	function onElementMousePressed(e:ElementEvent):Void 
 	{
 		trace( 'Mesh pressed ', e.model );
 		// zoom into model!
 		explorer.focusOn( e.mesh );
-		infoView.show( e.model );
+		infoView.showElement( e.model );
 	}
 	
 	function onElementMouseOut(e:ElementEvent):Void 
@@ -75,6 +82,6 @@ class Main extends Sprite
 	
 	function onElementMouseOver(e:ElementEvent):Void 
 	{
-		infoView.show( e.model );
+		infoView.showElement( e.model );
 	}
 }

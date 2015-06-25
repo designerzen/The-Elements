@@ -1,21 +1,18 @@
 package models.layouts;
-
 import openfl.geom.Vector3D;
 import views.ElementMesh;
 
-class MendelevLayout implements ILayout
+class HarrisonSpiralLayout implements ILayout
 {
 	public var showTrails:Bool = false;
-	public var type:String = 'Mendeleev';
+	public var type:String = 'Spiral periodic table (Robert W Harrison)';
 	
 	private static var rows:Int = 9;
 	private static var columns:Int = 19;//18;
 	private static var gap:Float = 100;
 	
-	private var heavyMetals:Int = 14;
-	
-	private var offsetX:Float = (columns * gap )/2;
-	private var offsetY:Float = (rows * gap )/2;
+	private var offsetX:Float = 0;
+	private var offsetY:Float = 0;
 	
 	private var table:Map<Int, TableItemPosition>;
 	
@@ -24,49 +21,41 @@ class MendelevLayout implements ILayout
 		var atomicNumber:Int = 1;
 		table = new Map<Int, TableItemPosition>();
 		
+		// Spiral starting with least dense around the outside
+		// so the spiral has denser elements in the middle
+		
 		// Row 1
 		var row:Int = 0;
-		for ( r in 0...rows )
+		for ( r in 0...200 )
 		{
 			var column:Int = 0;
-			
-			// Loop through the columns
-			for ( c in 0...columns )
+			switch (r)
 			{
-				if ( column >= columns )
-				{
-					break;
-				}
-				
-				// depending on row
-				if ( (column == 1) && ( row == 0) ) 
-				{
-					column += 16;
-				}
-				else if ( (column == 2) && ( row == 1) ) 
-				{
-					column += 10;
-				}
-				else if ( (column == 2) && ( row == 2) )
-				{
-					column += 10;
-				}
-				else if ( (column == 12) && ( row == 6) )
-				{
-					column = 0;
-					break;
-				}
-				else if ( (row > 6) && (column >= heavyMetals) )
-				{
-					break;
-				}
-				var position:TableItemPosition = new TableItemPosition( column, row );
-				trace( atomicNumber, position.toString() );
-				
-				table.set( atomicNumber++, position );
-				column++;
-				
+				case 27:
+				case 28:
+				case 29:
+					
+				case 44:
+				case 45:
+				case 46:
+					
+				case 76:
+				case 77:
+				case 78:
+						
+				case 108:
+				case 109:
+				case 110:
+					
+				default:
+					row++;
 			}
+			column++;
+			
+			var position:TableItemPosition = new TableItemPosition( column, row );
+				
+			table.set( atomicNumber++, position );
+
 			row++;
 		}
 	}
@@ -74,10 +63,10 @@ class MendelevLayout implements ILayout
 	public function getPosition( atomicNumber:Int ):Vector3D 
 	{
 		var position:TableItemPosition = table.get( atomicNumber );
-		var x:Float = gap * position.column - offsetX;
-		var y:Float = -gap * position.row + offsetY;
-		var z:Float = 0;
-		
+		var x:Float =  200  * Math.sin(position.column);
+		var y:Float = 0;
+		var z:Float = 200  * Math.cos(position.row);
+
 		return new Vector3D( x,y,z );
 	}
 	
@@ -93,7 +82,6 @@ class MendelevLayout implements ILayout
 		
 		element.x = position.x;
 		element.y = position.y;		
-		element.z = position.z;
+		element.z = position.z;	
 	}
-	
 }

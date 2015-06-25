@@ -1,12 +1,12 @@
 package models.layouts;
-
 import openfl.geom.Vector3D;
 import views.ElementMesh;
 
-class MendelevLayout implements ILayout
+
+class JanetLeftStepLayout implements ILayout
 {
 	public var showTrails:Bool = false;
-	public var type:String = 'Mendeleev';
+	public var type:String = 'Janet Left-Step';
 	
 	private static var rows:Int = 9;
 	private static var columns:Int = 19;//18;
@@ -70,14 +70,15 @@ class MendelevLayout implements ILayout
 			row++;
 		}
 	}
+	
 	// Simply provide an atomic number...
 	public function getPosition( atomicNumber:Int ):Vector3D 
 	{
 		var position:TableItemPosition = table.get( atomicNumber );
-		var x:Float = gap * position.column - offsetX;
-		var y:Float = -gap * position.row + offsetY;
-		var z:Float = 0;
-		
+		var x:Float = 200  * Math.sin(position.column);
+		var y:Float = 0;
+		var z:Float = 200  * Math.cos(position.row);
+
 		return new Vector3D( x,y,z );
 	}
 	
@@ -93,7 +94,6 @@ class MendelevLayout implements ILayout
 		
 		element.x = position.x;
 		element.y = position.y;		
-		element.z = position.z;
+		element.z = position.z;		
 	}
-	
 }
